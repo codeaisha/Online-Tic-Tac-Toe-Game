@@ -1,28 +1,14 @@
 {
-  "name": "@socket.io/component-emitter",
-  "description": "Event emitter",
-  "version": "3.1.2",
-  "license": "MIT",
-  "devDependencies": {
-    "mocha": "*",
-    "should": "*"
-  },
-  "component": {
-    "scripts": {
-      "emitter/index.js": "index.js"
-    }
-  },
-  "main": "./lib/cjs/index.js",
-  "module": "./lib/esm/index.js",
-  "types": "./lib/cjs/index.d.ts",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/socketio/emitter.git"
-  },
+  "name": "online-tic-tac-toe",
+  "version": "1.0.0",
+  "description": "Real-time two-player Tic-Tac-Toe with matchmaking, built with Node.js, Express and Socket.IO",
+  "main": "server.js",
   "scripts": {
-    "test": "make test"
+    "start": "node server.js"
   },
-  "files": [
-    "lib/"
-  ]
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.1.0",
+    "socket.io": "^4.8.1"
+  }
 }
