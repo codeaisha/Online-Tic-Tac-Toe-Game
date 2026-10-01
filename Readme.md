@@ -1,79 +1,22 @@
-# `@socket.io/component-emitter`
+# Online Tic-Tac-Toe
 
-  Event emitter component.
+Real-time two-player Tic-Tac-Toe with automatic matchmaking.
 
-This project is a fork of the [`component-emitter`](https://github.com/sindresorhus/component-emitter) project, with [Socket.IO](https://socket.io/)-specific TypeScript typings.
+## Features
+- Enter a name and get matched with another online player
+- Real-time moves over WebSockets (Socket.IO)
+- Server-side move validation, turn enforcement, win/draw detection
+- Handles opponent disconnects
 
-## Installation
+## Tech Stack
+Node.js, Express, Socket.IO, HTML, CSS, JavaScript
 
-```
-$ npm i @socket.io/component-emitter
-```
+## Run Locally
+    git clone https://github.com/codeaisha/Online-Tic-Tac-Toe-Game.git
+    cd Online-Tic-Tac-Toe-Game
+    npm install
+    node server.js
+Open http://localhost:3001 in two browser tabs.
 
-## API
-
-### Emitter(obj)
-
-  The `Emitter` may also be used as a mixin. For example
-  a "plain" object may become an emitter, or you may
-  extend an existing prototype.
-
-  As an `Emitter` instance:
-
-```js
-import { Emitter } from '@socket.io/component-emitter';
-
-var emitter = new Emitter;
-emitter.emit('something');
-```
-
-  As a mixin:
-
-```js
-import { Emitter } from '@socket.io/component-emitter';
-
-var user = { name: 'tobi' };
-Emitter(user);
-
-user.emit('im a user');
-```
-
-  As a prototype mixin:
-
-```js
-import { Emitter } from '@socket.io/component-emitter';
-
-Emitter(User.prototype);
-```
-
-### Emitter#on(event, fn)
-
-  Register an `event` handler `fn`.
-
-### Emitter#once(event, fn)
-
-  Register a single-shot `event` handler `fn`,
-  removed immediately after it is invoked the
-  first time.
-
-### Emitter#off(event, fn)
-
-  * Pass `event` and `fn` to remove a listener.
-  * Pass `event` to remove all listeners on that event.
-  * Pass nothing to remove all listeners on all events.
-
-### Emitter#emit(event, ...)
-
-  Emit an `event` with variable option args.
-
-### Emitter#listeners(event)
-
-  Return an array of callbacks, or an empty array.
-
-### Emitter#hasListeners(event)
-
-  Check if this emitter has `event` handlers.
-
-## License
-
-MIT
+## Screenshots
+(add 1-2 screenshots or a GIF)
