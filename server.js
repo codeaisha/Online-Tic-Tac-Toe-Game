@@ -21,12 +21,16 @@ io.on("connection", (socket) => {
   console.log(`🔌 New connection: ${socket.id}`);
 
   // Handle player entry and matchmaking
-  socket.on("find", ({ name }) => {
-    players.set(socket.id, { name, opponent: null });
+  socket.on("find", ({ name } = {}) => {
+    if (players.has(socket.id)) return; // ignore a second "find"
+    const cleanName = String(name || "").trim().slice(0, 20);
+    if (!cleanName) return;
+
+    players.set(socket.id, { name: cleanName, opponent: null });
 
     if (!waitingPlayer) {
       waitingPlayer = socket;
-      console.log(`🕐 ${name} is waiting for an opponent...`);
+      console.log(`🕐 ${cleanName} is waiting for an opponent...`);
     } else {
       const player1 = waitingPlayer;
       const player2 = socket;
@@ -60,6 +64,15 @@ io.on("connection", (socket) => {
     const playerData = players.get(socket.id);
     if (playerData?.opponent) {
       playerData.opponent.emit("move", { index, symbol });
+    }
+  });
+
+  // Handle chat messages (NEW)
+  socket.on("chat", ({ text } = {}) => {
+    const playerData = players.get(socket.id);
+    const message = String(text || "").trim().slice(0, 200);
+    if (playerData?.opponent && message) {
+      playerData.opponent.emit("chat", { text: message });
     }
   });
 
