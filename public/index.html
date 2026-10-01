@@ -1,8 +1,8 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Multiplayer Tic Tac Toe</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -44,41 +44,42 @@
     const loading = document.getElementById("loading");
     const bigCont = document.getElementById("bigCont");
     const startScreen = document.getElementById("startScreen");
-  
+
     const userSpan = document.getElementById("user");
     const oppNameSpan = document.getElementById("oppName");
     const valueSpan = document.getElementById("value");
     const whosTurn = document.getElementById("whosTurn");
     const buttons = document.querySelectorAll(".btn");
-  
+
     let mySymbol = "X";
     let isMyTurn = false;
+    let gameEnded = false;
     let board = ["", "", "", "", "", "", "", "", ""]; // Game board to track moves
-  
+
     const winningCombinations = [
       [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
       [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
-      [0, 4, 8], [2, 4, 6],           // Diagonals
+      [0, 4, 8], [2, 4, 6],            // Diagonals
     ];
-  
+
     findBtn.addEventListener("click", () => {
       const name = usernameInput.value.trim();
       if (!name) {
         alert("Please enter your name.");
         return;
       }
-  
+
       findBtn.disabled = true;
       loading.style.display = "block";
-  
+
       socket.emit("find", { name });
     });
-  
+
     socket.on("matchFound", ({ player, opponent, symbol }) => {
       loading.style.display = "none";
       startScreen.style.display = "none";
       bigCont.style.display = "block";
-  
+
       userSpan.textContent = player;
       oppNameSpan.textContent = opponent;
       valueSpan.textContent = symbol;
@@ -86,26 +87,26 @@
       isMyTurn = symbol === "X";
       whosTurn.textContent = isMyTurn ? "Your Turn" : "Opponent's Turn";
     });
-  
+
     buttons.forEach((btn) => {
       btn.addEventListener("click", () => {
-        if (!isMyTurn || btn.disabled) return;
-  
+        if (!isMyTurn || btn.disabled || gameEnded) return;
+
         const index = btn.dataset.index;
         if (board[index] !== "") return; // Avoid making a move in already filled cell
-  
+
         btn.textContent = mySymbol;
         btn.disabled = true;
         board[index] = mySymbol; // Update board with the move
         isMyTurn = false;
         whosTurn.textContent = "Opponent's Turn";
-  
+
         socket.emit("move", { index, symbol: mySymbol });
-  
+
         checkGameStatus(); // Check if the game is over
       });
     });
-  
+
     socket.on("move", ({ index, symbol }) => {
       const btn = document.querySelector(`.btn[data-index='${index}']`);
       if (btn) {
@@ -114,37 +115,44 @@
         board[index] = symbol; // Update board with opponent's move
         isMyTurn = true;
         whosTurn.textContent = "Your Turn";
-  
+
         checkGameStatus(); // Check if the game is over
       }
     });
-  
+
     const checkGameStatus = () => {
       // Check for winner
       for (let combo of winningCombinations) {
         const [a, b, c] = combo;
         if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-          endGame(`${board[a]} Wins!`);
+          endGame(board[a] === mySymbol ? "You Win! 🎉" : "You Lose! 😢");
           return;
         }
       }
-  
+
       // Check for draw (no winner and all cells filled)
-      if (!board.includes("") && !whosTurn.textContent.includes("Turn")) {
-        endGame("It's a Draw!");
+      if (!board.includes("")) {
+        endGame("It's a Draw! 🤝");
       }
     };
-  
+
     const endGame = (message) => {
-      alert(message);
-      socket.emit("gameOver", { winner: message });
+      if (gameEnded) return;
+      gameEnded = true;
+      isMyTurn = false;
+      setTimeout(() => {
+        alert(message);
+        socket.emit("gameOver", { winner: message });
+        location.reload(); // Reload the page for a new match
+      }, 300);
     };
-  
+
     socket.on("gameOver", ({ winner }) => {
-      if (winner) {
-        alert(winner);
+      // The game already ended on this side, so no second alert
+      if (!gameEnded) {
+        alert(winner === null ? "Opponent left the game. 😔" : winner);
       }
-      location.reload(); // Reload the game after the game ends
+      location.reload();
     });
   </script>
 </body>
