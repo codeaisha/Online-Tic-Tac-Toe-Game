@@ -3,58 +3,132 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Multiplayer Tic Tac Toe</title>
+  <title>Tic-Tac-Toe Multiplayer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="startScreen">
-    <h1>Tic-Tac-Toe Multiplayer</h1>
-    <input type="text" id="username" placeholder="Enter your name" />
-    <br><br>
-    <button id="find">Find Opponent</button>
-    <br><br>
-    <img id="loading" src="loading.png" alt="Loading..." />
+  <div class="bg">
+    <span class="blob b1"></span>
+    <span class="blob b2"></span>
+    <span class="blob b3"></span>
   </div>
 
-  <div id="bigCont">
-    <h1>Tic-Tac-Toe</h1>
-    <div id="userCont">You: <span id="user"></span></div>
-    <div id="oppNameCont">Opponent: <span id="oppName"></span></div>
-    <div id="valueCont">Your Symbol: <span id="value"></span></div>
-    <div id="whosTurn">Waiting for opponent...</div>
-    <div id="cont">
-      <!-- 9 buttons for the board -->
-      <button class="btn" data-index="0"></button>
-      <button class="btn" data-index="1"></button>
-      <button class="btn" data-index="2"></button>
-      <button class="btn" data-index="3"></button>
-      <button class="btn" data-index="4"></button>
-      <button class="btn" data-index="5"></button>
-      <button class="btn" data-index="6"></button>
-      <button class="btn" data-index="7"></button>
-      <button class="btn" data-index="8"></button>
+  <main class="app">
+    <!-- Start screen -->
+    <section id="startScreen" class="card">
+      <div class="logo"><span class="lx">X</span><span class="lo">O</span></div>
+      <h1>Tic-Tac-Toe</h1>
+      <p class="subtitle">Real-time multiplayer</p>
+
+      <input type="text" id="username" placeholder="Enter your name" maxlength="20" autocomplete="off" />
+      <button id="find">Find Opponent</button>
+
+      <div id="loading">
+        <div class="spinner"></div>
+        <p>Waiting for an opponent...<br>
+          <small>Open this link in a second tab, or send it to a friend, to start playing.</small>
+        </p>
+      </div>
+    </section>
+
+    <!-- Game screen -->
+    <section id="bigCont" class="card">
+      <h1 class="game-title">Tic-Tac-Toe</h1>
+
+      <div class="players">
+        <div class="player">
+          <span class="label">You</span>
+          <span id="user" class="name"></span>
+          <span id="value" class="sym"></span>
+        </div>
+        <div class="vs">VS</div>
+        <div class="player">
+          <span class="label">Opponent</span>
+          <span id="oppName" class="name"></span>
+          <span id="oppSymbol" class="sym"></span>
+        </div>
+      </div>
+
+      <div id="whosTurn">Waiting for opponent...</div>
+
+      <div id="cont">
+        <button class="btn" data-index="0"></button>
+        <button class="btn" data-index="1"></button>
+        <button class="btn" data-index="2"></button>
+        <button class="btn" data-index="3"></button>
+        <button class="btn" data-index="4"></button>
+        <button class="btn" data-index="5"></button>
+        <button class="btn" data-index="6"></button>
+        <button class="btn" data-index="7"></button>
+        <button class="btn" data-index="8"></button>
+      </div>
+
+      <!-- Chat -->
+      <div class="chat">
+        <div class="chat-title">💬 Chat</div>
+        <div id="chatMessages"></div>
+        <div class="quick">
+          <button class="quick-btn" data-msg="👋 Hi!">👋</button>
+          <button class="quick-btn" data-msg="GG!">GG</button>
+          <button class="quick-btn" data-msg="😂">😂</button>
+          <button class="quick-btn" data-msg="🔥 Nice move!">🔥</button>
+          <button class="quick-btn" data-msg="Good luck!">🍀</button>
+        </div>
+        <div class="chat-row">
+          <input type="text" id="chatInput" placeholder="Type a message..." maxlength="200" autocomplete="off" />
+          <button id="chatSend">Send</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">Made by <span>Aisha</span></footer>
+
+  <!-- Result popup -->
+  <div id="overlay" class="overlay">
+    <div class="modal">
+      <div id="modalEmoji" class="modal-emoji"></div>
+      <h2 id="modalTitle"></h2>
+      <p id="modalText"></p>
+      <button id="playAgain">Play Again</button>
     </div>
   </div>
+
+  <canvas id="confetti"></canvas>
 
   <script src="/socket.io/socket.io.js"></script>
   <script>
     const socket = io();
-    const findBtn = document.getElementById("find");
+
+    const startScreen = document.getElementById("startScreen");
     const usernameInput = document.getElementById("username");
+    const findBtn = document.getElementById("find");
     const loading = document.getElementById("loading");
     const bigCont = document.getElementById("bigCont");
-    const startScreen = document.getElementById("startScreen");
-
     const userSpan = document.getElementById("user");
     const oppNameSpan = document.getElementById("oppName");
     const valueSpan = document.getElementById("value");
+    const oppSymbolSpan = document.getElementById("oppSymbol");
     const whosTurn = document.getElementById("whosTurn");
-    const buttons = document.querySelectorAll(".btn");
+    const cont = document.getElementById("cont");
+    const overlay = document.getElementById("overlay");
+    const modalEmoji = document.getElementById("modalEmoji");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalText = document.getElementById("modalText");
+    const playAgain = document.getElementById("playAgain");
+    const chatMessages = document.getElementById("chatMessages");
+    const chatInput = document.getElementById("chatInput");
+    const chatSend = document.getElementById("chatSend");
 
     let mySymbol = "X";
+    let opponentName = "Opponent";
     let isMyTurn = false;
     let gameEnded = false;
-    let board = ["", "", "", "", "", "", "", "", ""]; // Game board to track moves
+    let matched = false;
+    const board = ["", "", "", "", "", "", "", "", ""];
 
     const winningCombinations = [
       [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
@@ -62,98 +136,218 @@
       [0, 4, 8], [2, 4, 6],            // Diagonals
     ];
 
-    findBtn.addEventListener("click", () => {
+    const cellAt = (i) => document.querySelector(`.btn[data-index="${i}"]`);
+
+    /* ---------- Turn indicator ---------- */
+    function setTurn(mine) {
+      isMyTurn = mine;
+      cont.classList.toggle("my-turn", mine);
+      whosTurn.classList.toggle("mine", mine);
+      whosTurn.textContent = mine ? "Your turn" : `${opponentName}'s turn`;
+    }
+
+    /* ---------- Matchmaking ---------- */
+    function startMatch() {
       const name = usernameInput.value.trim();
       if (!name) {
-        alert("Please enter your name.");
+        usernameInput.focus();
+        usernameInput.classList.add("shake");
+        setTimeout(() => usernameInput.classList.remove("shake"), 500);
         return;
       }
-
       findBtn.disabled = true;
-      loading.style.display = "block";
-
+      usernameInput.disabled = true;
+      findBtn.textContent = "Searching...";
+      loading.style.display = "flex";
       socket.emit("find", { name });
+    }
+
+    findBtn.addEventListener("click", startMatch);
+    usernameInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") startMatch();
     });
 
     socket.on("matchFound", ({ player, opponent, symbol }) => {
+      matched = true;
+      mySymbol = symbol;
+      opponentName = opponent;
+
       loading.style.display = "none";
       startScreen.style.display = "none";
       bigCont.style.display = "block";
 
+      const oppSym = symbol === "X" ? "O" : "X";
       userSpan.textContent = player;
       oppNameSpan.textContent = opponent;
       valueSpan.textContent = symbol;
-      mySymbol = symbol;
-      isMyTurn = symbol === "X";
-      whosTurn.textContent = isMyTurn ? "Your Turn" : "Opponent's Turn";
+      valueSpan.className = "sym " + symbol.toLowerCase();
+      oppSymbolSpan.textContent = oppSym;
+      oppSymbolSpan.className = "sym " + oppSym.toLowerCase();
+      cont.dataset.me = symbol;
+
+      addMsg(`Match started! Say hi to ${opponent} 👋`, "sys");
+      setTurn(symbol === "X"); // X always starts
     });
 
-    buttons.forEach((btn) => {
+    /* ---------- Moves ---------- */
+    function placeMark(index, symbol) {
+      const btn = cellAt(index);
+      btn.textContent = symbol;
+      btn.disabled = true;
+      btn.classList.add(symbol.toLowerCase(), "pop");
+      board[index] = symbol;
+    }
+
+    document.querySelectorAll(".btn").forEach((btn) => {
       btn.addEventListener("click", () => {
         if (!isMyTurn || btn.disabled || gameEnded) return;
 
-        const index = btn.dataset.index;
-        if (board[index] !== "") return; // Avoid making a move in already filled cell
+        const index = Number(btn.dataset.index);
+        if (board[index] !== "") return;
 
-        btn.textContent = mySymbol;
-        btn.disabled = true;
-        board[index] = mySymbol; // Update board with the move
-        isMyTurn = false;
-        whosTurn.textContent = "Opponent's Turn";
-
+        placeMark(index, mySymbol);
+        setTurn(false);
         socket.emit("move", { index, symbol: mySymbol });
 
-        checkGameStatus(); // Check if the game is over
+        checkGameStatus();
       });
     });
 
-    socket.on("move", ({ index, symbol }) => {
-      const btn = document.querySelector(`.btn[data-index='${index}']`);
-      if (btn) {
-        btn.textContent = symbol;
-        btn.disabled = true;
-        board[index] = symbol; // Update board with opponent's move
-        isMyTurn = true;
-        whosTurn.textContent = "Your Turn";
+    socket.on("move", ({ index }) => {
+      const i = Number(index);
+      if (gameEnded || !Number.isInteger(i) || i < 0 || i > 8 || board[i] !== "") return;
 
-        checkGameStatus(); // Check if the game is over
-      }
+      placeMark(i, mySymbol === "X" ? "O" : "X");
+      setTurn(true);
+      checkGameStatus();
     });
 
-    const checkGameStatus = () => {
-      // Check for winner
-      for (let combo of winningCombinations) {
+    function checkGameStatus() {
+      for (const combo of winningCombinations) {
         const [a, b, c] = combo;
         if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-          endGame(board[a] === mySymbol ? "You Win! 🎉" : "You Lose! 😢");
+          combo.forEach((i) => cellAt(i).classList.add("win"));
+          endGame(board[a] === mySymbol ? "win" : "lose");
           return;
         }
       }
+      if (!board.includes("")) endGame("draw");
+    }
 
-      // Check for draw (no winner and all cells filled)
-      if (!board.includes("")) {
-        endGame("It's a Draw! 🤝");
-      }
-    };
-
-    const endGame = (message) => {
+    /* ---------- Game over ---------- */
+    function endGame(type) {
       if (gameEnded) return;
       gameEnded = true;
       isMyTurn = false;
+      cont.classList.remove("my-turn");
+      whosTurn.classList.remove("mine");
+      whosTurn.textContent = "Game over";
+
+      const results = {
+        win:  { emoji: "🏆", title: "You Win!",      text: "Great game, nicely played!" },
+        lose: { emoji: "😢", title: "You Lose",      text: `${opponentName} won this round. Better luck next time!` },
+        draw: { emoji: "🤝", title: "It's a Draw!",  text: "Evenly matched. Up for a rematch?" },
+        left: { emoji: "🚪", title: "Opponent Left", text: `${opponentName} left the game.` },
+      };
+      const r = results[type];
+
+      // Short delay so the winning line stays visible before the popup
       setTimeout(() => {
-        alert(message);
-        socket.emit("gameOver", { winner: message });
-        location.reload(); // Reload the page for a new match
-      }, 300);
-    };
+        modalEmoji.textContent = r.emoji;
+        modalTitle.textContent = r.title;
+        modalText.textContent = r.text;
+        overlay.classList.add("show");
+        if (type === "win") confetti();
+      }, type === "left" ? 0 : 700);
+    }
 
     socket.on("gameOver", ({ winner }) => {
-      // The game already ended on this side, so no second alert
-      if (!gameEnded) {
-        alert(winner === null ? "Opponent left the game. 😔" : winner);
+      // The server sends winner: null when the opponent disconnects
+      if (winner === null) {
+        if (gameEnded) addMsg(`${opponentName} left the chat`, "sys");
+        else endGame("left");
       }
-      location.reload();
     });
+
+    playAgain.addEventListener("click", () => location.reload());
+
+    /* ---------- Chat ---------- */
+    function addMsg(text, type, who) {
+      const el = document.createElement("div");
+      el.className = "msg " + type;
+      if (who) {
+        const w = document.createElement("span");
+        w.className = "who";
+        w.textContent = who;
+        el.appendChild(w);
+      }
+      const t = document.createElement("span");
+      t.textContent = text; // textContent keeps messages safe from HTML injection
+      el.appendChild(t);
+      chatMessages.appendChild(el);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function sendChat(text) {
+      text = String(text || "").trim().slice(0, 200);
+      if (!text || !matched) return;
+      socket.emit("chat", { text });
+      addMsg(text, "me");
+    }
+
+    chatSend.addEventListener("click", () => {
+      sendChat(chatInput.value);
+      chatInput.value = "";
+      chatInput.focus();
+    });
+    chatInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        sendChat(chatInput.value);
+        chatInput.value = "";
+      }
+    });
+    document.querySelectorAll(".quick-btn").forEach((b) => {
+      b.addEventListener("click", () => sendChat(b.dataset.msg));
+    });
+
+    socket.on("chat", ({ text }) => {
+      addMsg(String(text || "").slice(0, 200), "them", opponentName);
+    });
+
+    /* ---------- Confetti ---------- */
+    function confetti() {
+      const c = document.getElementById("confetti");
+      const ctx = c.getContext("2d");
+      c.width = window.innerWidth;
+      c.height = window.innerHeight;
+      const colors = ["#ff4d8d", "#22d3ee", "#a78bfa", "#fbbf24", "#34d399"];
+      const parts = Array.from({ length: 140 }, () => ({
+        x: Math.random() * c.width,
+        y: -20 - Math.random() * c.height * 0.5,
+        w: 6 + Math.random() * 6,
+        h: 8 + Math.random() * 8,
+        vx: -1.5 + Math.random() * 3,
+        vy: 2 + Math.random() * 4,
+        rot: Math.random() * Math.PI,
+        vr: -0.2 + Math.random() * 0.4,
+        color: colors[Math.floor(Math.random() * colors.length)],
+      }));
+      let frames = 0;
+      (function tick() {
+        ctx.clearRect(0, 0, c.width, c.height);
+        parts.forEach((p) => {
+          p.x += p.vx; p.y += p.vy; p.rot += p.vr;
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.rot);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+          ctx.restore();
+        });
+        if (++frames < 220) requestAnimationFrame(tick);
+        else ctx.clearRect(0, 0, c.width, c.height);
+      })();
+    }
   </script>
 </body>
 </html>
